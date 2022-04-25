@@ -1,0 +1,12 @@
+html, body, h1 {
+    margin: 0px;
+    /* bottom: 0px; */
+    /* margin-bottom: 0px; */
+}
+
+img {
+    /* margin: auto; */
+    width: 1200px;
+    height: auto;
+    /* margin: auto; */
+}
