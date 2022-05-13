@@ -30,6 +30,17 @@ async function addObject(gameObject, title) {
   })
 }
 
+async function updateDoc(title, field, data) {
+  // data - data to be updated in doc
+  // title = title of data object to update
+  // field in object to update
+  // const objectToUpdate = getObject(title)
+  const objectToUpdate = doc(db, "gameObjects", title)
+  await updateDoc(objectToUpdate, {
+    field: data
+  })
+}
+
 async function getData() {
   // get game objects from firestoreDB
   // const q = query(collection(db, "gameObjects"));
@@ -53,28 +64,28 @@ async function getObject(title) {
     console.log("Document does not exist.")
   }
 }
-// getData();
-// const gameData = getData();
+
 // const gameData = require('./__mocks__/gamedata.json');
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 const gameData = getData()
 let gameObject = {}
-getObject("Postcard").then(
-  data => {
-    // console.log(data)
-    gameObject["topScores"] = data['topScores']
-    gameObject["title"] = data["title"]
-    gameObject["image"] = data["image"]
-    gameObject["characters"] = data["characters"]
-  }
-)
+// getObject("Postcard").then(
+//   data => {
+//     // console.log(data)
+//     gameObject["topScores"] = data['topScores']
+//     gameObject["title"] = data["title"]
+//     gameObject["image"] = data["image"]
+//     gameObject["characters"] = data["characters"]
+//   }
+// )
 
 // console.log("Game object", gameObject)
 // getData();
 // Script for adding objects to Firestore DB
+// console.log("Loading app", gameData)
 // Object.keys(gameData).forEach(object => {
-//   // console.log(gameData[object])
+//   console.log(gameData[object])
 //   addObject(gameData[object], object)
 // })
 // add to firestore
@@ -82,7 +93,7 @@ getObject("Postcard").then(
 // https://stackoverflow.com/questions/34867066/javascript-mouse-click-coordinates-for-image
 ReactDOM.render(
   <React.StrictMode>
-    <App gameData={gameData} testObject={gameObject} firebaseDependencies={[app, db]}/>
+    <App gameData={gameData} dataFunctions={updateDoc} updateData={updateDoc} firebaseDependencies={[app, db]}/>
   </React.StrictMode>,
   document.getElementById('root')
 );

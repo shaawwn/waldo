@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, query, getDocs, getDoc, doc } from 'firebase/firestore';
+import { getFirestore, collection, query, getDocs, getDoc, doc, updateDoc } from 'firebase/firestore';
 
+import { updateTopScores } from '../logic/updatetopscores.js';
 const firebaseConfig = {
     apiKey: "AIzaSyB-D4EF6PxogSmqvxZd1KnzTojry7ca3E0",
     authDomain: "where-s-waldo-5a7ec.firebaseapp.com",
@@ -51,10 +52,21 @@ async function getObject(title) {
     }
 }
 
-
+async function updateDocument(collectionName, title, toUpdate, newValue) {
+    // update document in firestore db
+    // title = name of doc
+    // toUpdate = data in doc to update (key)
+    // newValue = value to be updated into document
+    console.log("Updating document scores....", collectionName, title, toUpdate, newValue)
+    // db.collection(collectionName).doc(doc.title).update({toUpdate: newValue})
+    const docRef = doc(db, collectionName, title)
+    await updateDoc(docRef, {
+        [toUpdate]: newValue
+    })
+}
 
 function testLinks() {
     console.log("Loading correctly for fb data")
 }
 
-  export { testLinks, getData, getObject }
+  export { testLinks, getData, getObject, updateDocument }

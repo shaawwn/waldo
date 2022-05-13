@@ -1,6 +1,7 @@
 import checkSquare from '../logic/checksquare.js'
 import {useState, useEffect} from 'react';
 import Square from './square-overlay.js';
+import TopScores from './topscores.js';
 const WALDO = [211, 1463] // approximate location of waldo in Village Image
 const DRUNK = [785, 896] // location of drinking man
 const CHARS = {
@@ -13,15 +14,19 @@ function GameImage(props) {
     // props.characters = object of characters for game image {'Waldo': {'image': imageURL, 'coords': [0,0]}}
         // ex const waldo = props.characters['Waldo'].image, props.characters['Waldo'].coordinates
     // console.log("Waldo props", props.characters['Waldo'].image, props.characters['Waldo'].coordinates)
+    // console.log("Game image props", props)
     const [characters, setcharacters] = useState(props.characters) // characters should be matched up with the database
     const [selectedChars, setSelectedChars] = useState(setCharacterState)
     const [overlay, setOverlay] = useState(false)
     const [overlayLocation, setOverlayLocation] = useState([])
     const [clickedCoords, setClickedCoords] = useState()
+    const [gameOver, setGameOver] = useState() // setting true will render Top Scores window
+    const [tempScore, setTempScore] = useState() // just test to see if I can get new scores in topscores
 
     function checkCoordinates(event, character) {
         // check clicked coordinates against server data on where character is
         // event.stopPropagation()
+
         const char = event.target.innerText
         const coords = getClickCoordinates(event) // as is, from square-overlay gets coords from dropdown 
         // console.log("Returned coordinates", coords, WALDO)
@@ -51,7 +56,7 @@ function GameImage(props) {
 
     function handleCharacterSelect(charName) {
         // if a character is correctly selected, set selectedChar[character] = true, else do nothing
-        console.log("Handing character select", charName.toString())
+        // console.log("Handing character select", charName.toString())
         
 
         setSelectedChars(selectedChars => ({
@@ -71,11 +76,14 @@ function GameImage(props) {
     function handleGameOver() {
         // when game over state is reached, record final time searching, enter name (when backend/user funcitonality),
         // hitting 'OK' in alert/popup should then close window
-        const closeBtn = document.querySelector('.close-btn')
-        const gameImage = document.querySelector('game-image')
-        if(window.confirm("Game over!")) {
+        // update the score in the DB with new score here?
+        if(window.confirm("Game over!")) { // this is where the game should "officially" end
             // do other stuff here like keep track of score, time, update user information
-            props.close()
+
+
+            // update top Scores here
+            setTempScore(props.handleCheckScore()) // this will now return array of top scores
+            setGameOver(true)
         }
     }
 
@@ -100,9 +108,10 @@ function GameImage(props) {
 
 
     function handleClick(event) {
-        const clickCoords = getClickCoordinates(event)
+        const clickCoords = props.getClickedCoordinates(event)
+        // const clickCoords = getClickCoordinates(event)
         // checkCoordinates(event) // gets coordinates in the image
-        console.log("Coordinates of clickx", clickCoords)
+        // console.log("Coordinates of clickx", clickCoords)
         if(overlay === true) {
             setOverlay(false)
             setOverlayLocation()
@@ -115,10 +124,13 @@ function GameImage(props) {
     // checkSquare()
     // need to get the clicked coordinates when clicking on the image,
         // then run checkSquare
-    
+    function closeTopScores() {
+        setGameOver(false)
+        // props.close() // calls parent function resetOnModalClose which closes gameImage and calls several functions
+    }
     useEffect(() => {
         // console.log("Overlay location in gameimage", overlayLocation)
-        console.log("Character State", selectedChars)
+        // console.log("Character State", selectedChars)
         checkGameOver()
     }, [overlayLocation])
 
@@ -130,6 +142,10 @@ function GameImage(props) {
             {overlay
             ? <Square characters={characters} coords={overlayLocation} functions={handleCharacterSelect} charValue={selectedChars}/>
             : <span></span>
+            }
+            {gameOver
+            ? <TopScores close={props.close} displayScores={[props.close, gameOver]} scores={tempScore} dataFunctions={props.dataFunctions}/>
+            :<span></span>
             }
         </div>
     )
